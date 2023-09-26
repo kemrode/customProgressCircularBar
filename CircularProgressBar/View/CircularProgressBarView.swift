@@ -61,11 +61,12 @@ class CircularProgressBarView: UIView {
         self._progressLayer.strokeColor = UIColor.green.cgColor
     }
     
-    public func progressAnimation(duration: TimeInterval) {
+    public func progressAnimation(duration: TimeInterval, max: Double, min: Double) {
         let circularProgressAnimation = CABasicAnimation(keyPath: "strokeEnd")
         
         circularProgressAnimation.duration = duration
-        circularProgressAnimation.toValue = 1
+        circularProgressAnimation.fromValue = min
+        circularProgressAnimation.toValue = max
         circularProgressAnimation.fillMode = .forwards
         circularProgressAnimation.isRemovedOnCompletion = false
         self._progressLayer.add(circularProgressAnimation, forKey: "progressAnim")

@@ -18,10 +18,11 @@ class CircularViewController: UIViewController {
 // MARK: - Properties
     
     private var _circularProgressBarView: CircularProgressBarView!
-    private var _circularDuration: TimeInterval = 2
+    private var _circularDuration: TimeInterval = 1
     private var _products: [Product] = []
     private var _listCollectionViewDataSource: ListCollectionViewDataSource!
-    private var _completionPercentage: Double! = 0.0
+    private var _completionPercentage: Double = 0.0
+    private var _totalProductsPercent: Double = 1.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +35,7 @@ class CircularViewController: UIViewController {
         super.viewWillAppear(animated)
         self.setListCollectionViewDataSource()
         self.animatedCircularCountingLabel.text = String(self._completionPercentage)
+        self.animatedCircularCountingLabel.text = "0 %"
     }
 
 // MARK: - Private Methods
@@ -41,7 +43,6 @@ class CircularViewController: UIViewController {
     private func setUpCircularProgressBarView() {
         self._circularProgressBarView = CircularProgressBarView(frame: .zero)
         self._circularProgressBarView.center = self.animatedCircularCountingLabel.center
-        self._circularProgressBarView.progressAnimation(duration: self._circularDuration)
         self.view.addSubview(self._circularProgressBarView)
     }
     
@@ -51,7 +52,7 @@ class CircularViewController: UIViewController {
     }
     
     private func setProducts() {
-        let pasta: Product = Product(name: "pasta", selected: true)
+        let pasta: Product = Product(name: "pasta", selected: false)
         self._products.append(pasta)
         let sauceBolognaise: Product = Product(name: "sauce bolognaise", selected: false)
         self._products.append(sauceBolognaise)
@@ -92,10 +93,19 @@ class CircularViewController: UIViewController {
     
     private func onProductSelected(cell: ListCell) {
         self._products.indices.forEach {
-            if self._products[$0].name == cell.productNameLabel.text {
+            if self._products[$0].name == cell.productNameLabel.text && self._products[$0].selected == false{
+                self.updatePercentageCompletion()
                 self._products[$0].selected = true
             }
         }
         self._listCollectionViewDataSource.updateProducts(newProducts: self._products)
+    }
+    
+    private func updatePercentageCompletion() {
+        let cellPercent = Double(self._products.count)/100
+        self._circularProgressBarView.progressAnimation(duration: self._circularDuration, max: (self._completionPercentage + cellPercent), min: self._completionPercentage)
+        self._completionPercentage += cellPercent
+        let totalCompletionPercentage = self._completionPercentage * 100
+        self.animatedCircularCountingLabel.text = String(format: "%2.f", totalCompletionPercentage) + " %"
     }
 }
